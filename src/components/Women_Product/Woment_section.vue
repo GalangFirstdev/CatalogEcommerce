@@ -15,16 +15,20 @@ export default {
       listData: [],
       listdataY: [],
       categoryActive: "men's clothing",
-      categories: ["men's clothing", "women's clothing", "jewelery"],
+      categories: [
+        "men's clothing",
+        "women's clothing",
+        "jewelery",
+        "electronic",
+      ],
       search: "",
       filterProduct: [],
-      newProduct: {
+      Product: {
         title: "",
-        category: "",
-        rating: "",
+        price: "",
         description: "",
-        price: 0,
         image: "",
+        category: "",
       },
       // set index untuk custom data from Api
       currentIndexProduct: 0,
@@ -82,33 +86,28 @@ export default {
         return "purple";
       }
     },
-    async addNewProduct(category) {
-      this.newProduct.category = category;
+    async addNewProduct() {
       try {
-        const API_URL_ADD = await fetch("https://fakestoreapi.com/products", {
+        const response = await fetch("https://fakestoreapi.com/products", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(this.newProduct),
+          body: JSON.stringify(this.Product),
         });
-
-        const newProductData = await API_URL_ADD.json();
-        this.listData.push(newProductData);
-        console.log("data di tambahkan", newProductData);
-
-        await this.refreshProductList();
+        // clear send Product
+        this.Product = {
+          title: "",
+          price: "",
+          description: "",
+          image: "",
+          category: "",
+        };
+        const newProduct = await response.json();
+        this.listData.push(newProduct);
+        console.log("New product added:", newProduct);
       } catch (error) {
-        console.log("error", error);
-      }
-    },
-    async refreshProductList() {
-      try {
-        const response = await fetch("https://fakestoreapi.com/products");
-        const products = await response.json();
-        this.listData = products; // Update your products data
-      } catch (error) {
-        console.error("Error refreshing product list:", error);
+        console.error("Error adding new product:", error);
       }
     },
     // create class binding untuk background kategori yang aktif
@@ -143,7 +142,6 @@ export default {
         console.log(data);
         this.listData = data;
         this.FilterApidata();
-        this.refreshProductList();
         this.SearchApiQuery();
       })
       .catch((error) => {
@@ -172,54 +170,49 @@ export default {
               </div>
             </div>
             <div class="AddProductForm">
-              <h2>Add New Product</h2>
-              <form @submit.prevent="addNewProduct('jewelery')">
-                <label for="title">Title:</label>
-                <input
-                  v-model="newProduct.title"
-                  type="text"
-                  id="title"
-                  required
-                />
-                <label for="price">price</label>
-                <input
-                  v-model="newProduct.price"
-                  type="text"
-                  id="price"
-                  required
-                />
-                <label for="price">rating</label>
-                <input
-                  v-model="newProduct.rating"
-                  type="text"
-                  id="rating"
-                  required
-                />
-                <label for="description">description</label>
-                <input
-                  v-model="newProduct.description"
-                  type="text"
-                  id="description"
-                  required
-                />
-                <label for="image">image</label>
-                <input
-                  v-model="newProduct.image"
-                  type="url"
-                  id="image"
-                  required
-                />
-                <label for="category">category</label>
-                <input
-                  v-model="newProduct.category"
-                  type="hidden"
-                  id="category"
-                  value="jewelery"
-                  required
-                />
-                <!-- ... other input fields for price, description, image, and category ... -->
-                <button type="submit">Add Product</button>
-              </form>
+              <div class="InputProducts">
+                <h2>Add New Product</h2>
+                <form @submit.prevent="addNewProduct">
+                  <label for="title">Title:</label>
+                  <input
+                    v-model="Product.title"
+                    type="text"
+                    id="title"
+                    required
+                  />
+                  <label for="price">price:</label>
+                  <input
+                    v-model="Product.price"
+                    type="text"
+                    id="price"
+                    required
+                  />
+                  <label for="description">description:</label>
+                  <input
+                    v-model="Product.description"
+                    type="text"
+                    id="description"
+                    required
+                  />
+                  <label for="image">image:</label>
+                  <input
+                    v-model="Product.image"
+                    type="url"
+                    id="image"
+                    required
+                  />
+                  <br />
+                  <label for="category">category:</label>
+                  <input
+                    v-model="Product.category"
+                    type="text"
+                    id="category"
+                    required
+                  />
+                  <!-- ... other input fields for price, description, image, and category ... -->
+                  <button type="submit">Add Product</button>
+                </form>
+              </div>
             </div>
             <div class="Shadow_box2">
               <div class="Women">
@@ -310,12 +303,45 @@ export default {
   --white: #fff;
   --pink: #fde2ff;
 }
+.AddProductForm {
+  display: flex;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  padding: 20px;
+}
+.InputProducts {
+  border: 1px solid #ccc;
+  padding: 5px;
+  background-color: #f9f9f9;
+  border-radius: 5px;
+}
+
+.InputProducts input {
+  width: 10%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  margin: 5px;
+  margin-bottom: 3px;
+}
+label {
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 3px;
+  cursor: pointer;
+}
 .InputSearch {
   margin: 30px;
 }
 .button_SeacrhQuery button {
   width: 15%;
-  padding: 2px;
+  padding: 3px;
   margin-top: 10px;
   background-color: #002772;
 }
